@@ -4,44 +4,122 @@
 
 # ========== SETUP ========== #
 #
-#   1. Edit the code to set up your passwords correctly - mine will be different from yours
-#   2. Edit your emails in the file
-#   3. Set whether you use 2FA and which email you use for Visual Studio (TODO: Allow for no email)
-#   4. Save the zip someone like onedrive or google drive where you can access it quickly
+#   1. Edit Install.py to set which email you use for Visual Studio (TODO: Allow for no email)
+#   2. Run PasswordCreator.py to create your encrypted passwords file
+#   3. Save the zip someone like OneDrive or Google Drive where you can download it later
 #
 
 # ========== HOW TO USE ========== #
 #
 #   1. Set Google Chrome as the default browser (TODO: set it automatically later?)
+#   2. Download your uploaded files from wherever you put them
 #   2. Use run.bat to run the program
-#   3. Input your passwords as asked (TODO: Encrypted password bank/file from ToboPasswords?)
-#   4. Input 2FA codes as asked
+#   3. Input your master password
+#   4. Input 2FA codes as asked after setup is complete
 #
 
 
 import time
 import pyautogui as pg
+import base64
+import os
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from getpass import getpass
 
 
-using2FA = True
 
-slateEmail = ""
-githubEmail = ""
-visualStudioEmail = ""
+usePasswordCreator = True # If you don't want to/don't trust the password encryption, you can enter everything manually
 useSheridanEmailForVisualStudio = False # I use my personal email for Visual Studio
-unityEmail = ""
-miroEmail = ""
-
-miroPass = #
-slatePass = #
-githubPass = #
-visualStudioPass = #
-unityPass = #
 
 
+if usePasswordCreator:
+    # Get path to script file
+    path = os.path.abspath(os.path.dirname(__file__))
+
+    if not os.path.exists(path + "/salt") or not os.path.exists(path + "/db"):
+        print("Missing password database - running password creator")
+        import PasswordCreator as pw
+        pw.run() # Run password creator
+
+    print("=== Sheridan Install/Login ===")
+
+    password = input("Master Password: ").encode()
 
 
+    with open(path + "/salt", "rb") as file:
+        salt = file.read()
 
+    try:
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=480000,
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(password))
+        f = Fernet(key)
+
+        #using2FA = True
+
+        def read(db) -> str:
+            # Read the length, use that to read the bytes, decrypt, then convert to string
+            return f.decrypt(db.read(int.from_bytes(db.read(1)))).decode()
+
+        # Read in all encrypted data
+        with open(path + "/db", "rb") as readDB:
+            slateEmail = read(readDB)
+            githubEmail = read(readDB)
+            visualStudioEmail = read(readDB)
+            unityEmail = read(readDB)
+            miroEmail = read(readDB)
+
+            slatePass = read(readDB)
+            githubPass = read(readDB)
+            visualStudioPass = read(readDB)
+            unityPass = read(readDB)
+            miroPass = read(readDB)
+    except:
+        print("Reading database failed - corrupted data or incorrect password?")
+        print("Input data manually...")
+        slateEmail = input("\nSlate Email: ")
+        githubEmail = input("Github Email: ")
+        visualStudioEmail = input("Visual Studio Email: ")
+        unityEmail = input("Unity Email: ")
+        miroEmail = input("Miro Email: ")
+
+        print("\n(Can't see passwords as you type)")
+        slatePass = getpass("Slate Password: ")
+        githubPass = getpass("Github Password: ")
+        visualStudioPass = getpass("Visual Studio Password: ")
+        unityPass = getpass("Unity Password: ")
+        miroPass = getpass("Miro Password: ")
+
+    print("Read in data - is this the correct email for slate (y/n)?")
+    print(slateEmail)
+
+    if input().lower() != "y":
+        print("Potential password database corruption - please run PasswordCreator.py to remake them")
+        exit()
+
+else: # No PasswordCreator
+    print("Input data...")
+    slateEmail = input("\nSlate Email: ")
+    githubEmail = input("Github Email: ")
+    visualStudioEmail = input("Visual Studio Email: ")
+    unityEmail = input("Unity Email: ")
+    miroEmail = input("Miro Email: ")
+
+    print("\n(Can't see passwords as you type)")
+    slatePass = getpass("Slate Password: ")
+    githubPass = getpass("Github Password: ")
+    visualStudioPass = getpass("Visual Studio Password: ")
+    unityPass = getpass("Unity Password: ")
+    miroPass = getpass("Miro Password: ")
+
+
+# Start actual input
 time.sleep(0.1)
 
 def type(comm, delay = 0):
@@ -73,10 +151,10 @@ def typeEnter(command, delay):
     enter(delay)
 
 
-def waitFor2FA(program):
-    if using2FA:
-        print("Input 2FA for " + program + ". Press 'Enter' to continue.")
-        input()
+#def waitFor2FA(program):
+#    if using2FA:
+#        print("Input 2FA for " + program + ". Press 'Enter' to continue.")
+#        input()
 
 
 # ========== Github Desktop Download ========== #
@@ -120,7 +198,6 @@ typeEnter(slatePass, 1.0) # Pass
 
 
 # ========== Visual Studio Sign In ========== #
-"""
 openProgram("visual studio 2022", 7.0)
 tabEnter(2, 2.0) # Sign into account
 
@@ -131,10 +208,9 @@ if not useSheridanEmailForVisualStudio:
 
 # Wait for 2FA...
 #waitFor2FA("Sheridan Email" if useSheridanEmailForVisualStudio else "Microsoft Account")
-"""
+
 
 # ========== Unity Hub Sign In ========== #
-"""
 openProgram("unity hub", 5.0)
 tabEnter(1, 3.0) # Login
 tabEnter(3, 0.3) # Close cookies window
@@ -145,7 +221,7 @@ tab()
 type(unityPass, 0.5)
 tabEnter(3, 2.5) # Login button
 tabEnter(2, 1.0) # Redirect to hub
-"""
+
 
 # ========== Miro Sign In ========== #
 openProgram("chrome", 2.0)
@@ -155,4 +231,6 @@ tab(12) # Navigate back to email field
 
 type(miroEmail, 0.5)
 tab()
-typeEnter(miroPass, 0.5)
+typeEnter(miroPass, 1.0)
+
+print("Everything has been opened - enter necessary 2FA codes and enjoy")
