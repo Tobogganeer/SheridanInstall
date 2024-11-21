@@ -158,23 +158,24 @@ def typeEnter(command, delay):
 
 
 # ========== Github Desktop Download ========== #
-openProgram("chrome", 2.0)
+openProgram("chrome", 4.0)
 typeEnter("https://central.github.com/deployments/desktop/desktop/latest/win32", 1.0)
 #enter(1.0) # Confirm download
-time.sleep(3.5) # These PCs are fast, take about a second to download
+time.sleep(5.5) # These PCs are fast, take about a second to download
 
 pg.hotkey("winleft", "r") # Open Run dialog
-typeEnter("downloads", 1.0)
-press("right", 0.2) # Highlight file
-enter(1.0) # Start setup
+typeEnter("downloads", 2.0)
+press("up", 0.4) # Highlight file
+press("down", 0.4)
+enter(2.0) # Start setup
 
-pg.hotkey("ctrl", "w") # Close Explorer
-time.sleep(0.5)
-pg.hotkey("ctrl", "w") # Close Chrome
+#pg.hotkey("ctrl", "w") # Close Explorer
+#time.sleep(1.5)
+#pg.hotkey("ctrl", "w") # Close Chrome
 
 print("Giving Github Desktop time to open...")
 time.sleep(10)
-enter(1.5) # Open login
+enter(3.5) # Open login
 
 
 # ========== Github Sign-in ========== #
@@ -188,22 +189,22 @@ typeEnter(githubPass, 0.5)
 # ========== SLATE Sign-in ========== #
 pg.hotkey("ctrl", "t") # New tab
 time.sleep(0.5)
-typeEnter("slate.sheridancollege.ca", 1.0)
+typeEnter("slate.sheridancollege.ca", 3.0)
 tabEnter(2, 2.0) # Navigate to "Sign In"
 
-typeEnter(slateEmail, 1.5) # Email
+typeEnter(slateEmail, 2.5) # Email
 typeEnter(slatePass, 1.0) # Pass
 
 # Wait for 2FA...
 
 
 # ========== Visual Studio Sign In ========== #
-openProgram("visual studio 2022", 7.0)
-tabEnter(2, 2.0) # Sign into account
+openProgram("visual studio 2022", 10.0)
+tabEnter(2, 4.0) # Sign into account
 
 if not useSheridanEmailForVisualStudio:
-    tabEnter(1, 2.5) # Seperate email (not organization)
-    typeEnter(visualStudioEmail, 1.0)
+    tabEnter(1, 4.5) # Seperate email (not organization)
+    typeEnter(visualStudioEmail, 2.0)
     typeEnter(visualStudioPass, 1.0)
 
 # Wait for 2FA...
@@ -211,23 +212,23 @@ if not useSheridanEmailForVisualStudio:
 
 
 # ========== Unity Hub Sign In ========== #
-openProgram("unity hub", 5.0)
-tabEnter(1, 3.0) # Login
+openProgram("unity hub", 8.0)
+tabEnter(1, 6.0) # Login
 tabEnter(3, 0.3) # Close cookies window
 tab(7) # Navigate to username input
 
 type(unityEmail, 0.5)
 tab()
 type(unityPass, 0.5)
-tabEnter(3, 2.5) # Login button
+tabEnter(3, 4.5) # Login button
 tabEnter(2, 1.0) # Redirect to hub
 
 
 # ========== Miro Sign In ========== #
-openProgram("chrome", 2.0)
-typeEnter("miro.com/login", 5.0) # Go to webpage, wait for cookie popup
-tabEnter(2, 1.0)
-tab(12) # Navigate back to email field
+openProgram("chrome", 3.0)
+typeEnter("miro.com/login", 1.0) # Go to webpage
+#tabEnter(2, 1.0)
+#tab(12) # Navigate back to email field
 
 type(miroEmail, 0.5)
 tab()
