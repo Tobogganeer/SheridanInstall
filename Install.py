@@ -45,7 +45,7 @@ if usePasswordCreator:
 
     print("=== Sheridan Install/Login ===")
 
-    password = input("Master Password: ").encode()
+    password = getpass("Master Password: ").encode()
 
 
     with open(path + "/salt", "rb") as file:
